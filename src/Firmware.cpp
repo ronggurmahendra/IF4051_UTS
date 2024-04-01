@@ -1,3 +1,4 @@
+// https://docs.espressif.com/projects/esp-idf/en/stable/esp32/hw-reference/esp32/get-started-devkitc.html
 #include <WiFi.h>
 #include <PubSubClient.h>
 
@@ -11,6 +12,12 @@ const int ledPin = 27; // GPIO pin untuk LED
 const int buttonPin = 13; // GPIO pin untuk button
 unsigned long lastDebounceTime = 0; // Variabel untuk debounce button
 unsigned long debounceDelay = 200; // Delay debounce
+
+// config project
+long saldo = 108000;
+
+
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
