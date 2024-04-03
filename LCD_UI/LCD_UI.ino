@@ -18,9 +18,9 @@ void setup(void)
 {
     Serial.begin(9600);
     uint16_t ID = tft.readID();
-    Serial.println("Example: Font_simple");
-    Serial.print("found ID = 0x");
-    Serial.println(ID, HEX);
+    // Serial.println("Example: Font_simple");
+    // Serial.print("found ID = 0x");
+    // Serial.println(ID, HEX);
     if (ID == 0xD3D3) ID = 0x9481; //force ID if write-only display
     tft.begin(ID);
     tft.setRotation(0);
