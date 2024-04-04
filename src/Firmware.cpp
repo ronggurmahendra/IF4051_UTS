@@ -38,7 +38,7 @@ String userNIM = "";
 String transactionAmountString = "";
 
 unsigned long previousMillis = 0;
-const long screenInterval = 100; // Refresh screenInterval in milliseconds
+const long screenInterval = 500; // Refresh screenInterval in milliseconds
 
 // State
 // 0 -> on init + Connecting to Network
@@ -60,7 +60,7 @@ PubSubClient client(espClient);
 void setup_wifi() {
   delay(10);
   Serial.println();
-  Serial.print("Connecting to ");
+  Serial.print("Connecting to q ");
   Serial.println(ssid);
 
   WiFi.begin(ssid, password);
@@ -95,7 +95,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void refreshScreen(){
     // Print the character to serial monitor
-  screenString = "STATE : " + String(STATE)  + "\n"  + "NIM : " + userNIM  +"\n" + "Saldo : " + String(saldo)+"\n"+ "Transaction Amount  : " + transactionAmountString+"\n" ;
+  screenString = "STATE : " + String(STATE)  + 'q'  + "NIM : " + userNIM  +'q' + "Saldo : " + String(saldo)+'q'+ "Amount  : " + transactionAmountString+'q' ;
   Serial.println(screenString);
 }
 
@@ -154,6 +154,7 @@ void setup() {
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
   STATE = 1;
+  refreshScreen();
 }
 
 void loop() {
@@ -183,6 +184,7 @@ void loop() {
               const char* nimCharArray = userNIM.c_str();
               requestSaldo(nimCharArray);
               STATE = 1;
+              refreshScreen();
               break;
           } else { // Otherwise, append the key to the input string
               userNIM += key;
@@ -239,7 +241,7 @@ void loop() {
               } else {
                 // Serial.println("Connection failed");
               }
-
+              refreshScreen();
               break;
           } else { // Otherwise, append the key to the input string
               transactionAmountString += key;
@@ -251,12 +253,13 @@ void loop() {
     requestSaldo(nimCharArray);
     transactionAmount = 0;
     transactionAmountString = "";
+    refreshScreen();
     STATE = 1;
   };
   unsigned long currentMillis = millis(); // Get the current time
   
-  if (currentMillis - previousMillis >= screenInterval) { // Check if it's time to refresh
-      previousMillis = currentMillis; // Save the last time the screen was refreshed
-      refreshScreen(); // Refresh the screen
-  }
+  // if (currentMillis - previousMillis >= screenInterval) { // Check if it's time to refresh
+  //     previousMillis = currentMillis; // Save the last time the screen was refreshed
+  //     refreshScreen(); // Refresh the screen
+  // }
 }
