@@ -95,7 +95,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void refreshScreen(){
     // Print the character to serial monitor
-  screenString = "STATE : " + String(STATE)  + 'q'  + "NIM : " + userNIM  +'q' + "Saldo : " + String(saldo)+'q'+ "Amount  : " + transactionAmountString+'q' ;
+  screenString = "STATE : " + String(STATE)  + 'q'  + "NIM : " + userNIM  +'q' + "Saldo : " +  "Rp. " + String(saldo)+'q'+ "Amount  : " + transactionAmountString+'q' ;
   Serial.println(screenString);
 }
 

@@ -55,6 +55,34 @@ app.post('/saldo', (req, res) => {
     });
 });
 
+// Endpoint to handle top-up
+app.post('/top-up', (req, res) => {
+    let requestData = '';
+    req.on('data', chunk => {
+        requestData += chunk;
+    });
+
+    req.on('end', () => {
+        console.log('Received top-up request:', requestData);
+        let parsedData = JSON.parse(requestData);
+        let user = parsedData.User;
+        let amount = parseInt(parsedData.Amount);
+
+        let userIndex = DummyDatabase.findIndex(item => item.nim === user);
+
+        if (userIndex !== -1) {
+            DummyDatabase[userIndex].amount += amount;
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true, message: 'Top-up successful' }));
+        } else {
+            res.statusCode = 404;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: false, message: 'User not found' }));
+        }
+    });
+});
+
 // Route for handling transaction requests
 app.post('/transaction', (req, res) => {
     let requestData = '';
