@@ -11,11 +11,11 @@ const DummyDatabase = [];
 
 for (let i = 1; i <= 300; i++) {
     let nim = '135190' + ('00' + i).slice(-2);
-    DummyDatabase.push({ nim: nim, amount: calculateAmount(nim) });
+    DummyDatabase.push({ nim: nim, amount: calculateAmount(nim), password: generatePassword(nim)});
 }
 for (let i = 1; i <= 300; i++) {
     let nim = '135200' + ('00' + i).slice(-2);
-    DummyDatabase.push({ nim: nim, amount: calculateAmount(nim) });
+    DummyDatabase.push({ nim: nim, amount: calculateAmount(nim), password: generatePassword(nim)});
 }
 let lastTransaction = {};
 function calculateAmount(nim) {
@@ -23,7 +23,15 @@ function calculateAmount(nim) {
     let amount = (parseInt(lastThreeDigits) + 100) * 1000;
     return amount;
 }
-
+function generatePassword(nim) {
+    let lastFourDigits = nim.slice(-4);
+    let password = '';
+    for (let digit of lastFourDigits) {
+        let newDigit = parseInt(digit) + 1;
+        password += newDigit.toString().padStart(2, '0');
+    }
+    return password;
+}
 // Route for handling saldo requests
 app.post('/saldo', (req, res) => {
     let requestData = '';

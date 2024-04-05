@@ -105,7 +105,7 @@ void refreshScreen() {
     screenString = String("Gur's Payment System") + String("q") +
                    String("NIM : ") + String(userNIM) + String("q") +
                    String("Saldo : Rp. ") + String(saldo) + String("q") +
-                   String("Amount  : ") + String(transactionAmountString) + String("q") +
+                   String("Amount  : Rp. ") + String(transactionAmountString) + String("q") +
                    String(AdditionalLine_1) + String("q") +
                    String(AdditionalLine_2);
     Serial.println(screenString);
@@ -204,6 +204,8 @@ void loop() {
   // Handle Define User
   }else if(STATE == 2){
     userNIM = "";
+    AdditionalLine_1 = "Insert NIM";
+    refreshScreen();
     while (true) {
       char key = customKeypad.getKey(); // Read a key from the keypad
       
@@ -225,13 +227,15 @@ void loop() {
   }else if(STATE == 3){
     transactionAmount = 0;
     transactionAmountString = "";
+    AdditionalLine_1 = "Insert Transaction Amount";
+    refreshScreen();
     while (true) {
       char key = customKeypad.getKey(); // Read a key from the keypad
       
       if (key) { // Check if a key is pressed
           if (key == '#') { // If '#' key is pressed, exit the loop
               STATE = 1;
-              // TODO : Handle Transaction Logic Here 
+              // TODO : Handle Auth logic here
               if (espClient.connect(serverAddress, serverPort)) {
                 // Serial.println("Connected to server");
 
@@ -264,13 +268,13 @@ void loop() {
                         // Check the value of the 'success' field
                         int success = doc["success"];
                         if (success == 1) {
-                            AdditionalLine_1 = "Transaction Success";
+                            AdditionalLine_2 = "Transaction Success";
                         } else {
-                            AdditionalLine_1 = "Transaction Failed";
+                            AdditionalLine_2 = "Transaction Failed";
                         }
                     }
                 } else {
-                  AdditionalLine_1 = "Transaction Failed";
+                  AdditionalLine_2 = "Transaction Failed";
                 }
                 http.end();
                 refreshScreen();

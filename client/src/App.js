@@ -99,6 +99,8 @@ function App() {
 
       // Update previous transaction
       setPrevTransaction(lastTransaction);
+      // Refetch saldo list and last transaction
+      fetchSaldoList();
     }
   }, [lastTransaction, prevTransaction]);
 
@@ -147,7 +149,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Saldo List</h1>
+        <h1>Gur's Payment System</h1>
         <div>
           <input 
             type="text" 
