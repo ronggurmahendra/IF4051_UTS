@@ -173,6 +173,12 @@ void loop() {
     if(customKey == 'B'){
       STATE = 3;
     }
+    if(customKey == 'C'){
+      refreshScreen();
+    }
+    if(customKey == 'C'){
+      refreshScreen();
+    }
   // Handle Define User
   }else if(STATE == 2){
     userNIM = "";

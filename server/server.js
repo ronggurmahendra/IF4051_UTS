@@ -5,16 +5,12 @@ const port = 3000;
 
 console.log("Initialize Dummy Database")
 const DummyDatabase = [];
-// const data = [
-//     { nim: '13519008', amount: calculateAmount('13519008') },
-//     { nim: '13519009', amount: calculateAmount('13519009') },
-//     { nim: '135190010', amount: calculateAmount('135190010') },
-//   ];
-for (let i = 1; i <= 20; i++) {
+
+for (let i = 1; i <= 300; i++) {
     let nim = '135190' + ('00' + i).slice(-2) ;
     DummyDatabase.push({ nim: nim, amount: calculateAmount(nim) });
 }
-for (let i = 1; i <= 20; i++) {
+for (let i = 1; i <= 300; i++) {
     let nim = '135200' + ('00' + i).slice(-2);
     DummyDatabase.push({ nim: nim, amount: calculateAmount(nim) });
 }
