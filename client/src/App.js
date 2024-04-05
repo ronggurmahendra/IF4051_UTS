@@ -11,6 +11,8 @@ function App() {
   const [saldoList, setSaldoList] = useState([]);
   const [nim, setNim] = useState('');
   const [amount, setAmount] = useState('');
+  const [lastTransaction, setLastTransaction] = useState(null);
+  const [prevTransaction, setPrevTransaction] = useState(null);
 
   const fetchSaldoList = async () => {
     try {
@@ -32,9 +34,73 @@ function App() {
     }
   };
 
+  const fetchLastTransaction = async () => {
+    try {
+      const response = await fetch('http://192.168.68.110:3000/lastTransaction', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch last transaction');
+      }
+
+      const data = await response.json();
+      setLastTransaction(data);
+    } catch (error) {
+      console.error('Error fetching last transaction:', error.message);
+    }
+  };
+
   useEffect(() => {
     fetchSaldoList();
+    fetchLastTransaction();
   }, []);
+
+  useEffect(() => {
+    // Periodically check for new last transaction
+    const interval = setInterval(() => {
+      fetchLastTransaction();
+    }, 5000); // Check every 5 seconds (adjust as needed)
+
+    return () => clearInterval(interval); // Cleanup
+  }, []);
+
+  useEffect(() => {
+    // Check if last transaction is different from previous one
+    if (lastTransaction && JSON.stringify(lastTransaction) !== JSON.stringify(prevTransaction)) {
+      // Show popup notification for new last transaction
+
+      console.log(lastTransaction)
+      if (lastTransaction.success) {
+        // Show success notification
+        toast.success(`Transaksi Berhasil! NIM: ${lastTransaction.nim}, Sisa Saldo: ${formatRupiah(lastTransaction.saldo)}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        // Show error notification
+        toast.error(`Transaksi Gagal! NIM: ${lastTransaction.nim}, Sisa Saldo: ${formatRupiah(lastTransaction.saldo)}`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+
+
+      // Update previous transaction
+      setPrevTransaction(lastTransaction);
+    }
+  }, [lastTransaction, prevTransaction]);
 
   const handleTopUp = async () => {
     try {
@@ -61,8 +127,9 @@ function App() {
         draggable: true,
       });
 
-      // Refetch saldo list
+      // Refetch saldo list and last transaction
       fetchSaldoList();
+      fetchLastTransaction();
     } catch (error) {
       console.error('Error topping up:', error.message);
       // Show error notification

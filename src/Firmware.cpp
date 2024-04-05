@@ -21,6 +21,8 @@ byte colPins[COLS] = {26, 25, 33, 32}; /* connect to the column pinouts of the k
 //initialize an instance of class NewKeypad
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS); 
 String screenString = ""; // Declare a string variable to hold the input characters
+String AdditionalLine_1 = "";
+String AdditionalLine_2 = "";
 
 const char* ssid = "newGK91";
 const char* password = "33445566778899";
@@ -93,12 +95,28 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //   }
 // }
 
-void refreshScreen(){
+// void refreshScreen(){
+//     // Print the character to serial monitor
+//   screenString = "Gur's Payment System"+ "q"  + "NIM : " + String(userNIM)  + "q" + "Saldo : " +  "Rp. " + String(saldo)+'q'+ "Amount  : " + String(transactionAmountString)+"q" + String(AdditionalLine_1) + "q" + String(AdditionalLine_2) ;
+//   Serial.println(screenString);
+// }
+void refreshScreen() {
     // Print the character to serial monitor
-  screenString = "STATE : " + String(STATE)  + 'q'  + "NIM : " + userNIM  +'q' + "Saldo : " +  "Rp. " + String(saldo)+'q'+ "Amount  : " + transactionAmountString+'q' ;
-  Serial.println(screenString);
+    screenString = String("Gur's Payment System") + String("q") +
+                   String("NIM : ") + String(userNIM) + String("q") +
+                   String("Saldo : Rp. ") + String(saldo) + String("q") +
+                   String("Amount  : ") + String(transactionAmountString) + String("q") +
+                   String(AdditionalLine_1) + String("q") +
+                   String(AdditionalLine_2);
+    Serial.println(screenString);
 }
-
+void resetScreenVariables() {
+    userNIM = "";
+    saldo = 0; // Assuming saldo is an integer or float variable
+    transactionAmountString = "";
+    AdditionalLine_1 = "";
+    AdditionalLine_2 = "";
+}
 void requestSaldo(const char *nim) {
   if (espClient.connect(serverAddress, serverPort)) {
     Serial.println("Connected to server");
@@ -168,15 +186,19 @@ void loop() {
     char customKey = customKeypad.getKey();
     
     if (customKey == 'A'){
+      resetScreenVariables();
+      refreshScreen();
       STATE = 2;
     }
     if(customKey == 'B'){
       STATE = 3;
     }
     if(customKey == 'C'){
+      resetScreenVariables();
       refreshScreen();
     }
     if(customKey == 'C'){
+      resetScreenVariables();
       refreshScreen();
     }
   // Handle Define User
@@ -229,29 +251,43 @@ void loop() {
                 http.addHeader("Content-Type", "application/json");
                 int httpResponseCode = http.POST(jsonString);
                 if (httpResponseCode > 0) {
-                  // TODO : Handle Transaction Status Here
-                  // Serial.print("HTTP Response code: ");
-                  // Serial.println(httpResponseCode);
-                  String response = http.getString();
-                  
-                  // Serial.print("Response: ");
-                  // Serial.println(response);
-                  
+                    String response = http.getString();
+
+                    // Parse JSON response
+                    StaticJsonDocument<128> doc; // Adjust the buffer size as needed
+                    DeserializationError error = deserializeJson(doc, response);
+
+                    // Check for parsing errors
+                    if (error) {
+                        // Handle parsing error
+                    } else {
+                        // Check the value of the 'success' field
+                        int success = doc["success"];
+                        if (success == 1) {
+                            AdditionalLine_1 = "Transaction Success";
+                        } else {
+                            AdditionalLine_1 = "Transaction Failed";
+                        }
+                    }
                 } else {
-                  // Serial.print("Error on HTTP request: ");
-                  // Serial.println(httpResponseCode);
+                  AdditionalLine_1 = "Transaction Failed";
                 }
                 http.end();
-
-                delay(5000); // Send data every 5 seconds
+                refreshScreen();
+                delay(5000); 
+                resetScreenVariables();
               } else {
                 // Serial.println("Connection failed");
               }
               refreshScreen();
               break;
-          } else { // Otherwise, append the key to the input string
-              transactionAmountString += key;
-              refreshScreen();
+          } else { 
+              // transactionAmountString += key;
+              // refreshScreen();
+              if (key >= '0' && key <= '9') {
+                transactionAmountString += key;
+                refreshScreen();
+              }
           }
       }
     } 
@@ -262,10 +298,6 @@ void loop() {
     refreshScreen();
     STATE = 1;
   };
-  unsigned long currentMillis = millis(); // Get the current time
-  
-  // if (currentMillis - previousMillis >= screenInterval) { // Check if it's time to refresh
-  //     previousMillis = currentMillis; // Save the last time the screen was refreshed
-  //     refreshScreen(); // Refresh the screen
-  // }
+  unsigned long currentMillis = millis();
+
 }

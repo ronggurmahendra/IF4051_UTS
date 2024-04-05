@@ -17,7 +17,7 @@ for (let i = 1; i <= 300; i++) {
     let nim = '135200' + ('00' + i).slice(-2);
     DummyDatabase.push({ nim: nim, amount: calculateAmount(nim) });
 }
-
+let lastTransaction = {};
 function calculateAmount(nim) {
     let lastThreeDigits = nim.slice(-3);
     let amount = (parseInt(lastThreeDigits) + 100) * 1000;
@@ -109,8 +109,24 @@ app.post('/transaction', (req, res) => {
                 DummyDatabase[userIndex].amount -= amount;
                 success = true;
                 message = 'Transaction successful';
+                // Update last transaction
+                lastTransaction = {
+                    nim: user,
+                    amount: amount,
+                    saldo: DummyDatabase[userIndex].amount, // Access DummyDatabase[userIndex].amount
+                    success : 1,
+                    status: 'Success'
+                };
                 console.log("Remaining Saldo : ", DummyDatabase[userIndex].amount)
             } else {
+                // Update last transaction
+                lastTransaction = {
+                    nim: user,
+                    amount: amount,
+                    saldo: DummyDatabase[userIndex].amount, // Access DummyDatabase[userIndex].amount
+                    success : 0,
+                    status: 'Fail'
+                };
                 message = 'Insufficient amount';
             }
         } else {
@@ -126,6 +142,15 @@ app.get('/saldo-list', (req, res) => {
     const saldoList = DummyDatabase.map(item => ({ nim: item.nim, amount: item.amount }));
     res.json(saldoList);
 });
+
+// Endpoint to get the last transaction
+app.get('/lastTransaction', (req, res) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(lastTransaction));
+});
+
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
